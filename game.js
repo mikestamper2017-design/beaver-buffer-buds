@@ -1,12 +1,11 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// --- CALIBRATION: Optimized for the background perspective ---
-const GRID_OFFSET_Y = 0.58;     
+// --- CALIBRATION ---
+const GRID_OFFSET_Y = 0.62;     // Move grid up/down
 const PLAYER_CENTER_X = 0.28;   
 const BUD_CENTER_X = 0.72;      
-let TILE_W, TILE_H, BEAVER_SIZE;
-// --------------------------------------------------------------
+// -------------------
 
 let gameActive = false;
 let isSwiping = false;
@@ -14,7 +13,6 @@ let playerGrid = Array(8).fill().map(() => Array(8).fill(0));
 let budGrid = Array(8).fill().map(() => Array(8).fill(0));
 let playerBeaver = { x: 0, y: 0 };
 let budBeaver = { x: 7, y: 7 };
-let activeItem = 'snowball';
 let sabotageCharges = 0;
 let lastMilestone = 0;
 let projectile = null;
@@ -33,20 +31,20 @@ function loadAssets(cb) {
     });
 }
 
+// Fixed dimensions regardless of screen size
 function updateDimensions() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    TILE_W = canvas.width * 0.055;
-    TILE_H = TILE_W * 0.5;
-    BEAVER_SIZE = canvas.width * 0.045; // Fixed "Giant Beaver" issue
+    canvas.width = 1200; // Internal resolution
+    canvas.height = 675; 
 }
 
-function toScreen(x, y, isRight) {
+function toScreen(gx, gy, isRight) {
+    const tileW = 60; 
+    const tileH = 30;
     const centerX = isRight ? canvas.width * BUD_CENTER_X : canvas.width * PLAYER_CENTER_X;
     const centerY = canvas.height * GRID_OFFSET_Y;
     return { 
-        x: (x - y) * (TILE_W / 2) + centerX, 
-        y: (x + y) * (TILE_H / 2) + centerY 
+        x: (gx - gy) * (tileW / 2) + centerX, 
+        y: (gx + gy) * (tileH / 2) + centerY 
     };
 }
 
@@ -62,45 +60,45 @@ function updateScores() {
         lastMilestone += 10;
         document.getElementById('action-btn').innerText = `SABOTAGE (${sabotageCharges})`;
     }
-
     if (p >= 100) { gameActive = false; document.getElementById('win-screen').style.display = 'flex'; }
 }
 
-// AI: Bud cleans his rink
+// Bud AI: Active Movement
 setInterval(() => {
     if (!gameActive) return;
-    let tx = Math.floor(Math.random() * 8);
-    let ty = Math.floor(Math.random() * 8);
-    budBeaver = { x: tx, y: ty };
-    budGrid[ty][tx] = 1;
+    budBeaver.x = Math.floor(Math.random() * 8);
+    budBeaver.y = Math.floor(Math.random() * 8);
+    budGrid[budBeaver.y][budBeaver.x] = 1;
     updateScores();
-}, 1000);
+}, 800);
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (!images['rough']) return requestAnimationFrame(draw);
 
+    // Draw Tiles
     for (let y = 0; y < 8; y++) {
         for (let x = 0; x < 8; x++) {
             let p = toScreen(x, y, false);
-            ctx.drawImage(playerGrid[y][x] ? images['polished'] : images['rough'], p.x - (TILE_W/2), p.y, TILE_W, TILE_H);
+            ctx.drawImage(playerGrid[y][x] ? images['polished'] : images['rough'], p.x - 30, p.y, 60, 30);
             let b = toScreen(x, y, true);
             let bImg = budGrid[y][x] === 2 ? images['cracked'] : (budGrid[y][x] === 1 ? images['polished'] : images['rough']);
-            ctx.drawImage(bImg, b.x - (TILE_W/2), b.y, TILE_W, TILE_H);
+            ctx.drawImage(bImg, b.x - 30, b.y, 60, 30);
         }
     }
 
-    let pPos = toScreen(playerBeaver.x, playerBeaver.y, false);
-    ctx.drawImage(images[selectedSkin] || images['lumber-hack'], pPos.x - (BEAVER_SIZE/2), pPos.y - BEAVER_SIZE, BEAVER_SIZE, BEAVER_SIZE * 1.2);
+    // Draw Beavers - Sized 60x70 relative to 1200px canvas
+    let pP = toScreen(playerBeaver.x, playerBeaver.y, false);
+    ctx.drawImage(images[selectedSkin] || images['lumber-hack'], pP.x - 30, pP.y - 60, 60, 70);
     
-    let bPos = toScreen(budBeaver.x, budBeaver.y, true);
-    ctx.drawImage(images['mountie'], bPos.x - (BEAVER_SIZE/2), bPos.y - BEAVER_SIZE, BEAVER_SIZE, BEAVER_SIZE * 1.2);
+    let bP = toScreen(budBeaver.x, budBeaver.y, true);
+    ctx.drawImage(images['mountie'], bP.x - 30, bP.y - 60, 60, 70);
 
     if (projectile) {
         projectile.p += 0.03;
         let cx = projectile.x + (projectile.tx - projectile.x) * projectile.p;
-        let cy = (projectile.y + (projectile.ty - projectile.y) * projectile.p) - Math.sin(projectile.p * Math.PI) * 100;
-        ctx.drawImage(projectile.img, cx - 15, cy - 15, 30, 30);
+        let cy = (projectile.y + (projectile.ty - projectile.y) * projectile.p) - Math.sin(projectile.p * Math.PI) * 150;
+        ctx.drawImage(projectile.img, cx - 20, cy - 20, 40, 40);
         if (projectile.p >= 1) { 
             budGrid[Math.floor(Math.random()*8)][Math.floor(Math.random()*8)] = 2; 
             projectile = null; 
@@ -109,17 +107,23 @@ function draw() {
     requestAnimationFrame(draw);
 }
 
-function handleInput(clientX, clientY) {
+function handleInput(e) {
     if (!isSwiping || !gameActive) return;
     const rect = canvas.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
+    
+    // Find closest tile on Player Side
     for (let gy = 0; gy < 8; gy++) {
         for (let gx = 0; gx < 8; gx++) {
             let pos = toScreen(gx, gy, false);
-            let dist = Math.hypot(x - pos.x, y - (pos.y + TILE_H/2));
-            if (dist < TILE_W * 0.4) {
+            let dist = Math.hypot(x - pos.x, y - (pos.y + 15));
+            if (dist < 30) {
                 playerBeaver = { x: gx, y: gy };
                 playerGrid[gy][gx] = 1;
                 updateScores();
@@ -130,12 +134,11 @@ function handleInput(clientX, clientY) {
 }
 
 // Events
-window.addEventListener('resize', updateDimensions);
 canvas.addEventListener('mousedown', () => isSwiping = true);
 window.addEventListener('mouseup', () => isSwiping = false);
-canvas.addEventListener('mousemove', (e) => handleInput(e.clientX, e.clientY));
-canvas.addEventListener('touchstart', (e) => { isSwiping = true; handleInput(e.touches[0].clientX, e.touches[0].clientY); });
-canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+canvas.addEventListener('mousemove', handleInput);
+canvas.addEventListener('touchstart', (e) => { isSwiping = true; handleInput(e); });
+canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleInput(e); }, {passive: false});
 
 document.getElementById('action-btn').onclick = () => {
     if (!gameActive || projectile || sabotageCharges <= 0) return;
@@ -143,20 +146,9 @@ document.getElementById('action-btn').onclick = () => {
     document.getElementById('action-btn').innerText = `SABOTAGE (${sabotageCharges})`;
     const s = toScreen(playerBeaver.x, playerBeaver.y, false);
     const t = toScreen(Math.floor(Math.random()*8), Math.floor(Math.random()*8), true);
-    projectile = { x: s.x, y: s.y, tx: t.x, ty: t.y, img: images[activeItem], p: 0 };
+    projectile = { x: s.x, y: s.y, tx: t.x, ty: t.y, img: images['snowball'], p: 0 };
 };
 
-document.getElementById('start-btn').onclick = () => { 
-    gameActive = true; 
-    document.getElementById('overlay-screen').style.display = 'none'; 
-};
-
-document.querySelectorAll('.skin-option').forEach(opt => {
-    opt.onclick = () => {
-        document.querySelectorAll('.skin-option').forEach(i => i.classList.remove('active'));
-        opt.classList.add('active');
-        selectedSkin = opt.getAttribute('data-skin');
-    };
-});
+document.getElementById('start-btn').onclick = () => { gameActive = true; document.getElementById('overlay-screen').style.display = 'none'; };
 
 loadAssets(() => { updateDimensions(); draw(); });
