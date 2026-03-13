@@ -1,74 +1,113 @@
-/* 1. Reset and Center */
+/* 1. Global Reset & Mobile Optimization */
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
 body {
     margin: 0;
     padding: 0;
-    background-color: #121212; /* Deep charcoal */
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #000; /* Dark contrast for the ice */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    overflow: hidden; /* Stops the screen from bouncing on mobile */
+    overflow: hidden;
 }
 
-/* 2. The Phone Viewport */
+/* 2. The Game Container (The Rink Stadium) */
 #game-container {
     position: relative;
     width: 100vw;
     height: 100vh;
-    max-width: 450px; /* Forces a phone-like shape on your Mac */
-    background: #000;
-    box-shadow: 0 0 40px rgba(0,0,0,0.8);
-    overflow: hidden;
+    /* Keeps the dual-rink layout visible on wider screens */
+    max-width: 900px; 
+    background: url('background.jpg') no-repeat center center;
+    background-size: cover;
+    box-shadow: 0 0 50px rgba(0,0,0,1);
+    display: flex;
+    flex-direction: column;
 }
 
-/* 3. The "White-Glove" UI */
+/* 3. The High-End UI Layer */
 #ui-layer {
     position: absolute;
     top: 5%;
+    left: 0;
     width: 100%;
     z-index: 10;
     display: flex;
-    flex-direction: column;
+    justify-content: space-around;
     align-items: center;
-    pointer-events: none; /* Clicks go through the UI to the game */
+    pointer-events: none; /* Allows clicks to pass through to the ice */
 }
 
-#score-board {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 12px 25px;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 800;
-    color: #222;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    letter-spacing: 1px;
+/* Individual Score Boxes */
+.score-tag {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: #1a1a1a;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.5);
+    min-width: 120px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+#percent-player { color: #e62117; } /* Canadian Red for You */
+#percent-bud { color: #2a5a2a; }    /* Forest Green for the Bud */
+
+/* 4. The Action Button (Sabotage/Snowball) */
+#action-btn-container {
+    position: absolute;
+    bottom: 8%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
 }
 
 #action-btn {
-    pointer-events: auto; /* Makes the button clickable */
-    margin-top: 20px;
-    padding: 18px 40px;
-    background: #e62117; /* Canadian Red */
+    pointer-events: auto;
+    padding: 18px 45px;
+    background: #e62117;
     color: #fff;
     border: none;
     border-radius: 12px;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 900;
     text-transform: uppercase;
-    box-shadow: 0 6px 0 #b01a12;
+    box-shadow: 0 6px 0 #8a140e;
     cursor: pointer;
-    transition: transform 0.1s ease;
+    transition: all 0.1s ease;
 }
 
 #action-btn:active {
     transform: translateY(4px);
-    box-shadow: 0 2px 0 #b01a12;
+    box-shadow: 0 2px 0 #8a140e;
 }
 
-/* 4. The Game Canvas */
+/* 5. The Rendering Surface */
 canvas {
     display: block;
     width: 100%;
     height: 100%;
+    cursor: crosshair;
+}
+
+/* 6. Landscape Orientation Message (Optional for Mobile) */
+@media screen and (max-height: 450px) {
+    .score-tag {
+        padding: 5px 15px;
+        font-size: 0.7rem;
+    }
+    #action-btn {
+        padding: 10px 30px;
+        font-size: 1rem;
+    }
 }
