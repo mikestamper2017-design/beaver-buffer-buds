@@ -1,7 +1,38 @@
+/* 1. Global Reset */
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    margin: 0; padding: 0;
+}
+
+body {
+    background-color: #1a1a1a;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* 2. Responsive Game Frame */
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 1024px;
+    background: url('background.jpg') no-repeat center center;
+    background-size: cover;
+    overflow: hidden;
+}
+
+/* 3. The Overlays (Fixes Scaling) */
 .overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
+    background: rgba(0, 0, 0, 0.9);
     z-index: 500;
     display: flex;
     justify-content: center;
@@ -10,26 +41,76 @@
     text-align: center;
 }
 
-.overlay-content {
-    max-width: 80%;
-}
+.overlay-content { width: 90%; max-height: 95%; overflow-y: auto; padding: 20px; }
 
-.skin-select {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
+/* Expanded Skin Selector */
+.skin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
     margin: 20px 0;
 }
 
 .skin-option {
     cursor: pointer;
-    border: 3px solid transparent;
-    padding: 10px;
-    border-radius: 15px;
-    transition: 0.3s;
+    border: 2px solid rgba(255,255,255,0.2);
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
 }
 
-.skin-option img { width: 60px; height: 60px; display: block; margin-bottom: 5px;}
-.skin-option.active { border-color: #e62117; background: rgba(255,255,255,0.1); }
+.skin-option img { width: 45px; height: 45px; display: block; margin: 0 auto 5px; }
+.skin-option span { font-size: 0.7rem; display: block; }
+.skin-option.active { border-color: #e62117; background: rgba(230, 33, 23, 0.2); }
 
-.trophy { font-size: 5rem; margin: 20px 0; }
+/* 4. HUD & Buttons */
+#ui-layer {
+    position: absolute;
+    top: 2%; width: 100%;
+    display: flex; justify-content: space-around;
+    z-index: 100;
+}
+
+.score-tag {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: 900;
+    color: #222;
+    font-size: 0.8rem;
+}
+
+#item-dock {
+    position: absolute;
+    bottom: 15%; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 8px;
+    z-index: 100;
+}
+
+.item-slot {
+    width: 45px; height: 45px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 10px;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 1.4rem;
+}
+
+#action-btn-container {
+    position: absolute;
+    bottom: 4%; width: 100%;
+    display: flex; justify-content: center;
+    z-index: 100;
+}
+
+#action-btn, #start-btn {
+    padding: 12px 30px;
+    background: #e62117;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-weight: 900;
+    font-size: 1.1rem;
+}
+
+canvas { width: 100%; height: 100%; display: block; }
