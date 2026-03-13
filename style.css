@@ -1,0 +1,74 @@
+/* 1. Reset and Center */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #121212; /* Deep charcoal */
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden; /* Stops the screen from bouncing on mobile */
+}
+
+/* 2. The Phone Viewport */
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    max-width: 450px; /* Forces a phone-like shape on your Mac */
+    background: #000;
+    box-shadow: 0 0 40px rgba(0,0,0,0.8);
+    overflow: hidden;
+}
+
+/* 3. The "White-Glove" UI */
+#ui-layer {
+    position: absolute;
+    top: 5%;
+    width: 100%;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none; /* Clicks go through the UI to the game */
+}
+
+#score-board {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #222;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    letter-spacing: 1px;
+}
+
+#action-btn {
+    pointer-events: auto; /* Makes the button clickable */
+    margin-top: 20px;
+    padding: 18px 40px;
+    background: #e62117; /* Canadian Red */
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    box-shadow: 0 6px 0 #b01a12;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+#action-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #b01a12;
+}
+
+/* 4. The Game Canvas */
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
