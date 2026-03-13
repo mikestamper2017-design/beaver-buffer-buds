@@ -8,48 +8,49 @@
 </head>
 <body>
     <div id="game-container">
+        <div id="ui-layer">
+            <div class="score-tag">YOU: <span id="percent-player">0</span>%</div>
+            <div class="score-tag">BUD: <span id="percent-bud">0</span>%</div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="item-dock">
+            <div class="item-slot active" data-item="snowball"><img src="snowball.png"></div>
+            <div class="item-slot" data-item="syrup-trap"><img src="syrup-trap.png"></div>
+            <div class="item-slot" data-item="poutine"><img src="poutine.png"></div>
+            <div class="item-slot" data-item="golden-leaf"><img src="golden-leaf.png"></div>
+        </div>
+
+        <div id="action-btn-container">
+            <button id="action-btn">LOCKED (0% Clear)</button>
+        </div>
+
         <div id="overlay-screen" class="overlay">
-            <div class="overlay-content">
+            <div class="content">
                 <h1>BEAVER BUFFER BUDS</h1>
-                <p>Polish your rink to 100% to win the <b>Stanley Stump!</b></p>
+                <p>Polish your rink to 100% to win the Stanley Stump!</p>
+                <h3>CHOOSE YOUR BUD</h3>
                 <div class="skin-grid">
-                    <div class="skin-option active" data-skin="lumber-hack"><img src="lumber-hack.png"><span>Lumberjack</span></div>
-                    <div class="skin-option" data-skin="mountie"><img src="mountie.png"><span>Mountie</span></div>
-                    <div class="skin-option" data-skin="goalie"><img src="goalie.png"><span>Goalie</span></div>
-                    <div class="skin-option" data-skin="canadian"><img src="canadian.png"><span>Canadian</span></div>
-                    <div class="skin-option" data-skin="tactical-saboteur"><img src="tactical-saboteur.png"><span>Saboteur</span></div>
-                    <div class="skin-option" data-skin="syrup-tapper"><img src="syrup-tapper.png"><span>Tapper</span></div>
+                    <div class="skin-option active" data-skin="lumber-hack"><img src="lumber-hack.png"></div>
+                    <div class="skin-option" data-skin="goalie"><img src="goalie.png"></div>
+                    <div class="skin-option" data-skin="canadian"><img src="canadian.png"></div>
+                    <div class="skin-option" data-skin="tactical-saboteur"><img src="tactical-saboteur.png"></div>
+                    <div class="skin-option" data-skin="syrup-tapper.png"><img src="syrup-tapper.png"></div>
+                    <div class="skin-option" data-skin="mountie"><img src="mountie.png"></div>
                 </div>
                 <button id="start-btn">GIVE 'ER!</button>
             </div>
         </div>
 
         <div id="win-screen" class="overlay" style="display:none;">
-            <div class="overlay-content">
-                <h2 id="win-message">RINK'S MINT!</h2>
-                <div id="trophy-display" class="trophy">🪵🏆</div>
-                <p>You've secured the Stanley Stump!</p>
-                <button onclick="location.reload()" class="btn">PLAY AGAIN</button>
+            <div class="content">
+                <h2>CHAMPION!</h2>
+                <img src="stanley-stump.png" style="width: 200px;">
+                <p>You've won the Stanley Stump!</p>
+                <button onclick="location.reload()">PLAY AGAIN</button>
             </div>
         </div>
-
-        <div id="ui-layer">
-            <div class="score-tag">YOU: <span id="percent-player">0</span>%</div>
-            <div class="score-tag">BUD: <span id="percent-bud">0</span>%</div>
-        </div>
-
-        <div id="item-dock">
-            <div class="item-slot" data-item="poutine"><img src="poutine.png"></div>
-            <div class="item-slot" data-item="syrup-trap"><img src="syrup-trap.png"></div>
-            <div class="item-slot active" data-item="snowball"><img src="snowball.png"></div>
-            <div class="item-slot" data-item="golden-leaf"><img src="golden-leaf.png"></div>
-        </div>
-
-        <div id="action-btn-container">
-            <button id="action-btn">SABOTAGE!</button>
-        </div>
-
-        <canvas id="gameCanvas"></canvas>
     </div>
     <script src="game.js"></script>
 </body>
