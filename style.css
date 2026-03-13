@@ -1,34 +1,34 @@
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; }
-
-body { background-color: #000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+body { background: #000; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: 'Helvetica Neue', Arial, sans-serif; }
 
 #game-container {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background: url('background.jpg') no-repeat center center;
+    background-image: url('background.jpg'); 
+    background-position: center;
+    background-repeat: no-repeat;
     background-size: contain;
-    overflow: hidden;
 }
 
-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 10; }
+canvas { position: absolute; top: 0; left: 0; z-index: 5; pointer-events: auto; background: transparent; }
 
-.overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 500; display: flex; justify-content: center; align-items: center; color: white; text-align: center; }
-
-.skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-.skin-option { cursor: pointer; border: 2px solid rgba(255,255,255,0.2); padding: 5px; border-radius: 10px; transition: 0.2s; }
+.overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; justify-content: center; align-items: center; color: #fff; text-align: center; backdrop-filter: blur(5px); }
+.skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px; }
+.skin-option { border: 2px solid #444; padding: 5px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+.skin-option.active { border-color: #e62117; background: rgba(230,33,23,0.3); transform: scale(1.05); }
 .skin-option img { width: 50px; height: 50px; display: block; margin: 0 auto; }
-.skin-option.active { border-color: #e62117; background: rgba(230,33,23,0.2); }
+.skin-option span { font-size: 10px; display: block; margin-top: 4px; }
 
-#ui-layer { position: absolute; top: 2%; width: 100%; display: flex; justify-content: space-around; z-index: 100; }
-.score-tag { background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 20px; color: #222; font-weight: 900; }
+#ui-layer { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; z-index: 10; pointer-events: none; }
+.score-tag { background: rgba(255,255,255,0.9); color: #000; padding: 8px 15px; border-radius: 20px; font-weight: 900; }
 
-#item-dock { position: absolute; bottom: 16%; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; }
-.item-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.6); border: 2px solid #444; border-radius: 10px; display: flex; justify-content: center; align-items: center; }
-.item-slot img { width: 35px; height: 35px; object-fit: contain; }
-.item-slot.active { border-color: #e62117; background: #fff; transform: scale(1.1); }
+#item-dock { position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 10; }
+.item-slot { width: 55px; height: 55px; background: rgba(0,0,0,0.6); border: 2px solid #555; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+.item-slot.active { background: #fff; border-color: #e62117; box-shadow: 0 0 15px #e62117; }
+.item-slot img { width: 40px; height: 40px; object-fit: contain; }
 
-#action-btn-container { position: absolute; bottom: 5%; width: 100%; display: flex; justify-content: center; z-index: 100; }
-#action-btn, #start-btn, .retry-btn { padding: 12px 40px; background: #e62117; color: #fff; border: none; border-radius: 30px; font-weight: 900; font-size: 1.2rem; cursor: pointer; box-shadow: 0 5px 0 #8a140e; }
+#action-btn-container { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: center; z-index: 10; }
+#action-btn, #start-btn, .btn { padding: 15px 45px; background: #e62117; color: #fff; border: none; border-radius: 35px; font-weight: 900; font-size: 1.2rem; cursor: pointer; box-shadow: 0 6px 0 #8a140e; text-transform: uppercase; }
 
-.trophy { font-size: 5rem; margin: 20px; filter: drop-shadow(0 0 15px gold); }
+.trophy { font-size: 6rem; margin: 20px; filter: drop-shadow(0 0 20px gold); }
