@@ -1,148 +1,181 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const percentDisplay = document.getElementById('percent');
 
-// 1. Core Config
-const gridWidth = 7;
-const gridHeight = 7;
-let grid = Array(gridHeight).fill().map(() => Array(gridWidth).fill(0));
-let beaver = { x: 3, y: 3 }; // Start beaver in the center
+// 1. GAME CONFIGURATION
+const cols = 8;
+const rows = 8;
+let playerGrid = Array(rows).fill().map(() => Array(cols).fill(0));
+let budGrid = Array(rows).fill().map(() => Array(cols).fill(0));
+
+let playerBeaver = { x: 0, y: 0 };
+let budBeaver = { x: 7, y: 7 };
+
 let isSwiping = false;
+let activeItem = 'snowball';
 
-// 2. High-Reliability Asset Loader
+// Status Effects
+let playerStatus = { speed: 1, invincible: false };
+let budStatus = { speed: 1, stuck: false };
+
+// 2. ASSET LOADER
 const images = {};
 const assets = {
     rough: 'rough.png',
     polished: 'polished.png',
-    cracked: 'cracked.png',
-    beaver: 'lumber-hack.png' // Matches your new file list precisely
+    player: 'lumber-hack.png',
+    bud: 'mountie.png'
 };
 
-let loadedCount = 0;
-const totalAssets = Object.keys(assets).length;
-
 function loadAssets(callback) {
-    for (const [key, src] of Object.entries(assets)) {
+    let loaded = 0;
+    const total = Object.keys(assets).length;
+    for (let key in assets) {
         images[key] = new Image();
-        images[key].src = src;
-        images[key].onload = () => {
-            loadedCount++;
-            if (loadedCount === totalAssets) {
-                callback();
+        images[key].src = assets[key];
+        images[key].onload = () => { if (++loaded === total) callback(); };
+        images[key].onerror = () => console.error("Failed to load: " + assets[key]);
+    }
+}
+
+// 3. ISOMETRIC MATH
+// Positions tiles specifically over the two rinks in your background.jpg
+function toScreen(x, y, isRightRink) {
+    const tileW = 44; 
+    const tileH = 22;
+    // Horizontal center for Left Rink vs Right Rink
+    let centerX = isRightRink ? canvas.width * 0.73 : canvas.width * 0.27;
+    // Vertical center aligned with the ice pads in your image
+    let centerY = canvas.height * 0.58; 
+
+    return {
+        x: (x - y) * (tileW / 2) + centerX,
+        y: (x + y) * (tileH / 2) + centerY
+    };
+}
+
+// 4. SABOTAGE LOGIC (The "Buds" System)
+window.setActiveItem = (item) => { activeItem = item; };
+
+document.getElementById('action-btn').addEventListener('click', () => {
+    executeSabotage();
+});
+
+function executeSabotage() {
+    console.log("Using: " + activeItem);
+    
+    if (activeItem === 'poutine') {
+        budStatus.speed = 0.4; // Heavy gravy slows them down
+        setTimeout(() => { budStatus.speed = 1; }, 5000);
+    } 
+    else if (activeItem === 'syrup') {
+        budStatus.stuck = true; // Frozen in place
+        setTimeout(() => { budStatus.stuck = false; }, 3000);
+    } 
+    else if (activeItem === 'snowball') {
+        // Clear 10 random tiles on Bud's rink
+        for(let i=0; i<10; i++) {
+            let rx = Math.floor(Math.random()*cols);
+            let ry = Math.floor(Math.random()*rows);
+            budGrid[ry][rx] = 0;
+        }
+        budBeaver.x = 7; budBeaver.y = 7; // Knockback
+    } 
+    else if (activeItem === 'leaf') {
+        playerStatus.invincible = true;
+        playerStatus.speed = 2.5;
+        setTimeout(() => { playerStatus.invincible = false; playerStatus.speed = 1; }, 6000);
+    }
+}
+
+// 5. AI BUD (The Opponent)
+function updateBud() {
+    if (budStatus.stuck) return;
+    if (Math.random() > budStatus.speed) return;
+
+    // AI moves toward the nearest unpolished tile
+    let moved = false;
+    for(let y=0; y<rows && !moved; y++) {
+        for(let x=0; x<cols && !moved; x++) {
+            if(budGrid[y][x] === 0) {
+                budBeaver.x = x;
+                budBeaver.y = y;
+                budGrid[y][x] = 1;
+                moved = true;
             }
-        };
-        // Handle loading errors
-        images[key].onerror = () => {
-            console.error(`ERROR: Failed to load image at ${src}. Is the filename case-sensitive and correct?`);
         }
     }
-}
-
-// 3. Isometric Conversion (Both Ways)
-const tileW = 80; // Adjusted for 7x7 grid
-const tileH = 40; 
-
-// Grid to Screen (For Drawing)
-function toScreen(gridX, gridY) {
-    let screenX = (gridX - gridY) * (tileW / 2) + (canvas.width / 2);
-    let screenY = (gridX + gridY) * (tileH / 2) + (canvas.height / 3);
-    return { x: screenX, y: screenY };
-}
-
-// Screen to Grid (CRITICAL FOR SWIPING)
-// This converts a touch coord back into a grid index
-function fromScreen(scrX, scrY) {
-    let offsetX = scrX - (canvas.width / 2);
-    let offsetY = scrY - (canvas.height / 3);
     
-    // Inverse Isometric Math
-    let gridX = (offsetX / (tileW / 2) + offsetY / (tileH / 2)) / 2;
-    let gridY = (offsetY / (tileH / 2) - offsetX / (tileW / 2)) / 2;
-
-    return { x: Math.round(gridX), y: Math.round(gridY) };
+    const polished = budGrid.flat().filter(t => t === 1).length;
+    document.getElementById('percent-bud').innerText = Math.round((polished/64)*100);
 }
+setInterval(updateBud, 700);
 
-// 4. Input: The "Swipe-to-Polish" Mechanic
-// Supports both Mouse (for testing on Mac) and Touch (for phone)
-
-function getPointerPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.touches ? e.touches[0].clientX : e.clientX;
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: x - rect.left, y: y - rect.top };
-}
-
-function handleStart(e) { e.preventDefault(); isSwiping = true; handleMove(e); }
-function handleEnd() { isSwiping = false; }
-
-function handleMove(e) {
+// 6. PLAYER INTERACTION (Swipe/Buff)
+function handleInput(e) {
     if (!isSwiping) return;
-    e.preventDefault();
-    
-    // 1. Get where the finger is on the screen
-    const pointer = getPointerPos(e);
-    
-    // 2. Convert that screen point to a grid tile
-    const touchTile = fromScreen(pointer.x, pointer.y);
-    
-    // 3. Move the beaver to that tile
-    if (touchTile.x >= 0 && touchTile.x < gridWidth && touchTile.y >= 0 && touchTile.y < gridHeight) {
-        beaver.x = touchTile.x;
-        beaver.y = touchTile.y;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+
+    // For the prototype, we move the beaver to a grid position based on screen %
+    // Left side of screen = Player Rink
+    if (x < canvas.width / 2) {
+        let gridX = Math.floor((x / (canvas.width / 2)) * cols);
+        let gridY = Math.floor((y / canvas.height) * rows);
         
-        // 4. Buff/Polish the tile
-        grid[beaver.y][beaver.x] = 1;
-        updateProgress();
+        if (gridX >= 0 && gridX < cols && gridY >= 0 && gridY < rows) {
+            playerBeaver.x = gridX;
+            playerBeaver.y = gridY;
+            playerGrid[gridY][gridX] = 1;
+        }
     }
+    
+    const polished = playerGrid.flat().filter(t => t === 1).length;
+    document.getElementById('percent-player').innerText = Math.round((polished/64)*100);
 }
 
-// Touch listeners (Phone)
-canvas.addEventListener('touchstart', handleStart);
-canvas.addEventListener('touchmove', handleMove);
-canvas.addEventListener('touchend', handleEnd);
+canvas.addEventListener('mousedown', () => isSwiping = true);
+canvas.addEventListener('touchstart', () => isSwiping = true);
+window.addEventListener('mouseup', () => isSwiping = false);
+window.addEventListener('touchend', () => isSwiping = false);
+canvas.addEventListener('mousemove', handleInput);
+canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleInput(e); }, {passive: false});
 
-// Mouse listeners (Testing on Mac)
-canvas.addEventListener('mousedown', handleStart);
-canvas.addEventListener('mousemove', handleMove);
-canvas.addEventListener('mouseup', handleEnd);
-
-// Progress UI
-function updateProgress() {
-    let polished = grid.flat().filter(t => t === 1).length;
-    percentDisplay.innerText = Math.round((polished / (gridWidth * gridHeight)) * 100);
-}
-
-// 5. Draw Loop
+// 7. DRAW LOOP
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw Ice Grid
-    for (let y = 0; y < gridHeight; y++) {
-        for (let x = 0; x < gridWidth; x++) {
-            let pos = toScreen(x, y);
-            let img = (grid[y][x] === 1) ? images.polished : images.rough;
-            
-            if (img.complete) {
-                ctx.drawImage(img, pos.x - (tileW/2), pos.y, tileW, tileH);
-            }
+    // Draw Left Rink (Player)
+    for(let y=0; y<rows; y++) {
+        for(let x=0; x<cols; x++) {
+            let pos = toScreen(x, y, false);
+            let img = playerGrid[y][x] === 1 ? images.polished : images.rough;
+            ctx.drawImage(img, pos.x - 22, pos.y, 44, 22);
         }
     }
 
-    // Draw Beaver
-    let bPos = toScreen(beaver.x, beaver.y);
-    if (images.beaver.complete) {
-        ctx.drawImage(images.beaver, bPos.x - 40, bPos.y - 70, 80, 80);
+    // Draw Right Rink (Bud)
+    for(let y=0; y<rows; y++) {
+        for(let x=0; x<cols; x++) {
+            let pos = toScreen(x, y, true);
+            let img = budGrid[y][x] === 1 ? images.polished : images.rough;
+            ctx.drawImage(img, pos.x - 22, pos.y, 44, 22);
+        }
     }
+
+    // Draw Beavers
+    let pPos = toScreen(playerBeaver.x, playerBeaver.y, false);
+    ctx.drawImage(images.player, pPos.x - 20, pPos.y - 45, 40, 45);
+
+    let bPos = toScreen(budBeaver.x, budBeaver.y, true);
+    ctx.drawImage(images.bud, bPos.x - 20, bPos.y - 45, 40, 45);
 
     requestAnimationFrame(draw);
 }
 
-// 6. Initialize
-function startApp() {
+// START
+loadAssets(() => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     draw();
-}
-
-// Run the loader, then the app
-loadAssets(startApp);
+});
