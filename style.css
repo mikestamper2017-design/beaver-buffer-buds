@@ -1,32 +1,30 @@
-/* Ensure the intro screen stays centered and covers the game area */
-.overlay { 
-    position: absolute; 
-    inset: 0; 
-    background: rgba(0,0,0,0.9); 
-    z-index: 200; /* Higher than the canvas and UI */
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    color: #fff; 
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+body { background: #000; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: 'Helvetica Neue', Arial, sans-serif; }
+
+#game-container {
+    position: relative;
+    width: 100vw; height: 56.25vw; /* 16:9 ratio */
+    max-height: 100vh; max-width: 177.78vh;
+    background: url('background.jpg') center/contain no-repeat #000;
 }
 
-/* This class will be added via JS to hide the screen */
-.hidden { display: none !important; }
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; }
 
-.skin-grid { 
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 15px; 
-    margin: 20px; 
-}
+.overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: flex; justify-content: center; align-items: center; color: #fff; text-align: center; }
+.content h1 { font-size: 2.5rem; color: #e62117; margin-bottom: 10px; }
 
-.skin-option { 
-    border: 2px solid #555; 
-    padding: 10px; 
-    border-radius: 12px; 
-    cursor: pointer; 
-    background: #222;
-}
-
+.skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+.skin-option { border: 2px solid #444; padding: 10px; border-radius: 12px; cursor: pointer; background: #222; }
 .skin-option.active { border-color: #e62117; background: #441111; }
-.skin-option img { width: 60px; height: 60px; }
+.skin-option img { width: 50px; height: 50px; }
+
+#ui-layer { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; z-index: 10; pointer-events: none; }
+.score-tag { background: #fff; color: #000; padding: 10px 20px; border-radius: 25px; font-weight: 900; border: 3px solid #e62117; }
+
+#item-dock { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 10; }
+.item-slot { width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 1px solid #fff; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+.item-slot.active { background: #fff; border: 3px solid #e62117; }
+.item-slot img { width: 35px; height: 35px; }
+
+#action-btn-container { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; z-index: 10; }
+#action-btn, #start-btn { padding: 15px 40px; background: #e62117; color: #fff; border: none; border-radius: 35px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 #8a140e; }
