@@ -9,41 +9,54 @@
 <body>
 
     <div id="game-container">
+        <div id="overlay-screen" class="overlay">
+            <div class="overlay-content">
+                <h1>BEAVER BUFFER BUDS</h1>
+                <p>Swipe to polish your rink. First to 100% wins the <b>Stanley Stump!</b></p>
+                
+                <div class="skin-select">
+                    <div class="skin-option active" data-skin="lumber-hack">
+                        <img src="lumber-hack.png" alt="Lumberjack">
+                        <span>Lumber-Hack</span>
+                    </div>
+                    <div class="skin-option" data-skin="mountie">
+                        <img src="mountie.png" alt="Mountie">
+                        <span>The Mountie</span>
+                    </div>
+                </div>
+
+                <button id="start-btn">GIVE 'ER!</button>
+            </div>
+        </div>
+
+        <div id="win-screen" class="overlay" style="display:none;">
+            <div class="overlay-content">
+                <h2 id="win-message">RINK'S MINT!</h2>
+                <div class="trophy">🪵🏆</div>
+                <p>You've won the Stanley Stump!</p>
+                <button onclick="location.reload()">PLAY AGAIN</button>
+            </div>
+        </div>
+
         <div id="ui-layer">
             <div class="score-tag">YOU: <span id="percent-player">0</span>%</div>
             <div class="score-tag">BUD: <span id="percent-bud">0</span>%</div>
         </div>
 
         <div id="item-dock">
-            <div class="item-slot" id="slot-poutine" title="Poutine: Slow Move">🍟</div>
-            <div class="item-slot" id="slot-syrup" title="Syrup: Freeze">🍯</div>
-            <div class="item-slot active" id="slot-snowball" title="Snowball: Reset">⚪</div>
-            <div class="item-slot" id="slot-leaf" title="Golden Leaf: Power Up">🍁</div>
+            <div class="item-slot" id="slot-poutine" data-item="poutine">🍟</div>
+            <div class="item-slot" id="slot-syrup" data-item="syrup">🍯</div>
+            <div class="item-slot active" id="slot-snowball" data-item="snowball">⚪</div>
+            <div class="item-slot" id="slot-leaf" data-item="leaf">🍁</div>
         </div>
 
         <div id="action-btn-container">
-            <button id="action-btn">GIVE 'ER!</button>
+            <button id="action-btn">SABOTAGE!</button>
         </div>
 
         <canvas id="gameCanvas"></canvas>
     </div>
 
     <script src="game.js"></script>
-
-    <script>
-        // Simple UI script to handle switching active items in the dock
-        const slots = document.querySelectorAll('.item-slot');
-        slots.forEach(slot => {
-            slot.addEventListener('click', () => {
-                slots.forEach(s => s.classList.remove('active'));
-                slot.classList.add('active');
-                // Tell game.js which item is now active
-                if(window.setActiveItem) {
-                    window.setActiveItem(slot.getAttribute('data-item'));
-                }
-            });
-        });
-    </script>
-
 </body>
 </html>
