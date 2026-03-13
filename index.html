@@ -3,45 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beaver Buffer Buds | Versus</title>
+    <title>Beaver Buffer Buds</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="game-container">
-        
         <div id="overlay-screen" class="overlay">
             <div class="overlay-content">
                 <h1>BEAVER BUFFER BUDS</h1>
-                <p>Swipe your rink to polish the ice. First to 100% wins the <b>Stanley Stump!</b></p>
-                
+                <p>Polish your rink to 100% to win the <b>Stanley Stump!</b></p>
                 <div class="skin-grid">
-                    <div class="skin-option active" data-skin="lumber-hack">
-                        <img src="lumber-hack.png" alt="Lumber-Hack">
-                        <span>Lumber-Hack</span>
-                    </div>
-                    <div class="skin-option" data-skin="mountie">
-                        <img src="mountie.png" alt="Mountie">
-                        <span>The Mountie</span>
-                    </div>
-                    <div class="skin-option" data-skin="goalie">
-                        <img src="goalie.png" alt="Goalie">
-                        <span>Goalie</span>
-                    </div>
-                    <div class="skin-option" data-skin="canadian">
-                        <img src="canadian.png" alt="The Canadian">
-                        <span>The Canadian</span>
-                    </div>
-                    <div class="skin-option" data-skin="tactical-saboteur">
-                        <img src="tactical-saboteur.png" alt="Saboteur">
-                        <span>Saboteur</span>
-                    </div>
-                    <div class="skin-option" data-skin="syrup-tapper">
-                        <img src="syrup-tapper.png" alt="Tapper">
-                        <span>Tapper</span>
-                    </div>
+                    <div class="skin-option active" data-skin="lumber-hack"><img src="lumber-hack.png"><span>Lumberjack</span></div>
+                    <div class="skin-option" data-skin="mountie"><img src="mountie.png"><span>Mountie</span></div>
+                    <div class="skin-option" data-skin="goalie"><img src="goalie.png"><span>Goalie</span></div>
+                    <div class="skin-option" data-skin="canadian"><img src="canadian.png"><span>Canadian</span></div>
+                    <div class="skin-option" data-skin="tactical-saboteur"><img src="tactical-saboteur.png"><span>Saboteur</span></div>
+                    <div class="skin-option" data-skin="syrup-tapper"><img src="syrup-tapper.png"><span>Tapper</span></div>
                 </div>
-
                 <button id="start-btn">GIVE 'ER!</button>
             </div>
         </div>
@@ -49,9 +27,9 @@
         <div id="win-screen" class="overlay" style="display:none;">
             <div class="overlay-content">
                 <h2 id="win-message">RINK'S MINT!</h2>
-                <div class="trophy">🪵🏆</div>
-                <p>The Stanley Stump is yours!</p>
-                <button class="retry-btn" onclick="location.reload()">PLAY AGAIN</button>
+                <div id="trophy-display" class="trophy">🪵🏆</div>
+                <p>You've secured the Stanley Stump!</p>
+                <button onclick="location.reload()" class="btn">PLAY AGAIN</button>
             </div>
         </div>
 
@@ -61,10 +39,10 @@
         </div>
 
         <div id="item-dock">
-            <div class="item-slot" id="slot-poutine" data-item="poutine" title="Poutine: Slow Opponent">🍟</div>
-            <div class="item-slot" id="slot-syrup" data-item="syrup" title="Syrup: Stick Opponent">🍯</div>
-            <div class="item-slot active" id="slot-snowball" data-item="snowball" title="Snowball: Reset Tiles">⚪</div>
-            <div class="item-slot" id="slot-leaf" data-item="leaf" title="Golden Leaf: Speed Boost">🍁</div>
+            <div class="item-slot" data-item="poutine"><img src="poutine.png"></div>
+            <div class="item-slot" data-item="syrup-trap"><img src="syrup-trap.png"></div>
+            <div class="item-slot active" data-item="snowball"><img src="snowball.png"></div>
+            <div class="item-slot" data-item="golden-leaf"><img src="golden-leaf.png"></div>
         </div>
 
         <div id="action-btn-container">
@@ -73,27 +51,6 @@
 
         <canvas id="gameCanvas"></canvas>
     </div>
-
     <script src="game.js"></script>
-
-    <script>
-        // UI Logic for Item Selection
-        const itemSlots = document.querySelectorAll('.item-slot');
-        itemSlots.forEach(slot => {
-            slot.addEventListener('click', () => {
-                itemSlots.forEach(s => s.classList.remove('active'));
-                slot.classList.add('active');
-                if (window.setActiveItem) {
-                    window.setActiveItem(slot.getAttribute('data-item'));
-                }
-            });
-        });
-
-        // Prevention of accidental zoom/bounce on mobile
-        document.addEventListener('touchmove', function(e) {
-            if (e.scale !== 1) { e.preventDefault(); }
-        }, { passive: false });
-    </script>
-
 </body>
 </html>
